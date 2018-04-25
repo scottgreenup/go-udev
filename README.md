@@ -1,3 +1,3 @@
-# Magnet
+# go-udev
 
-Like auto-randr but more.
+libudev wrapper in Go

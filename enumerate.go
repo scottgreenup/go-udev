@@ -34,6 +34,10 @@ type Enumerate struct {
     ptr *C.struct_udev_enumerate
 }
 
+func (e *Enumerate) Free() {
+    C.udev_enumerate_unref(e.ptr)
+}
+
 func (e *Enumerate) AddMatchSubsystem(subsystemType string) {
     cSubsystemType := C.CString(subsystemType)
     defer C.free(unsafe.Pointer(cSubsystemType))

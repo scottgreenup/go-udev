@@ -25,6 +25,10 @@ func NewManager() *Manager {
     }
 }
 
+func (m *Manager) Free() {
+    C.udev_unref(m.ptr)
+}
+
 func (m *Manager) NewEnumerate() *Enumerate {
     ptr := C.udev_enumerate_new(m.ptr)
     if ptr == nil {

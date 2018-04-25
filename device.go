@@ -22,6 +22,11 @@ func NewDevice(ptr *C.struct_udev_device) *Device {
     }
 }
 
+func (d *Device) Free() {
+    C.udev_device_unref(d.ptr)
+    C.free(unsafe.Pointer(d.ptr))
+}
+
 func (d Device) Parent() *Device {
     return NewDevice(C.udev_device_get_parent(d.ptr))
 }

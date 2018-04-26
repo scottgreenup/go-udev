@@ -5,6 +5,7 @@ package main
 import "C"
 
 import (
+    "errors"
     "fmt"
     "unsafe"
 )
@@ -78,23 +79,55 @@ func (d Device) Attributes() ListEntryArray{
 	return NewListEntryArray(C.udev_device_get_sysattr_list_entry(d.ptr))
 }
 
-/*
-TODO
-const char *udev_device_get_property_value(struct udev_device *udev_device, const char *key);
-const char *udev_device_get_driver(struct udev_device *udev_device);
-dev_t udev_device_get_devnum(struct udev_device *udev_device);
-const char *udev_device_get_action(struct udev_device *udev_device);
-unsigned long long int udev_device_get_seqnum(struct udev_device *udev_device);
-unsigned long long int udev_device_get_usec_since_initialized(struct udev_device *udev_device);
-const char *udev_device_get_sysattr_value(struct udev_device *udev_device, const char *sysattr);
-int udev_device_set_sysattr_value(struct udev_device *udev_device, const char *sysattr, char *value);
-int udev_device_has_tag(struct udev_device *udev_device, const char *tag);
-*/
+func (d Device) PropertyValue(key string) string {
+    cKey := C.CString(key)
+    defer C.free(unsafe.Pointer(cKey))
+    return C.GoString(C.udev_device_get_property_value(d.ptr, cKey))
+}
+
+func (d Device) Driver() string {
+    return C.GoString(C.udev_device_get_driver(d.ptr))
+}
+
+func (d Device) DevNum() uint32 {
+    return uint32(C.udev_device_get_devnum(d.ptr))
+}
+
+func (d Device) Action() string {
+    return C.GoString(C.udev_device_get_action(d.ptr))
+}
+
+func (d Device) SeqNum() uint64 {
+    return uint64(C.udev_device_get_seqnum(d.ptr))
+}
+
+func (d Device) MicrosecondsSinceInitialized() uint64 {
+    return uint64(C.udev_device_get_usec_since_initialized(d.ptr))
+}
 
 func (d Device) GetAttribute(name string) string {
     cName := C.CString(name)
     defer C.free(unsafe.Pointer(cName))
     return C.GoString(C.udev_device_get_sysattr_value(d.ptr, cName))
+}
+
+func (d Device) SetAttribute(name string, value string) error {
+    cName := C.CString(name)
+    defer C.free(unsafe.Pointer(cName))
+    cValue := C.CString(value)
+    defer C.free(unsafe.Pointer(cValue))
+
+    if C.udev_device_set_sysattr_value(d.ptr, cName, cValue) >= 0 {
+        return nil
+    } else {
+        return errors.New("failed to set attribute")
+    }
+}
+
+func (d Device) HasTag(tag string) bool {
+    cTag := C.CString(tag)
+    defer C.free(unsafe.Pointer(cTag))
+    return C.udev_device_has_tag(d.ptr, cTag) == 1
 }
 
 func (d Device) GetAttributes() ListEntryMap {

@@ -13,10 +13,11 @@ type ListEntry struct {
     Value string
 }
 
-func iterateListEntry(ptr *C.struct_udev_list_entry) []ListEntry {
+type ListEntryArray []ListEntry
+type ListEntryMap   map[string]string
 
-    le := []ListEntry{}
-
+func NewListEntryArray(ptr *C.struct_udev_list_entry) ListEntryArray {
+    le := ListEntryArray{}
     for ptr != nil {
         le = append(le, ListEntry{
             Name: C.GoString(C.udev_list_entry_get_name(ptr)),
@@ -25,13 +26,24 @@ func iterateListEntry(ptr *C.struct_udev_list_entry) []ListEntry {
 
         ptr = C.udev_list_entry_get_next(ptr)
     }
-
     return le
 }
 
+func (le ListEntryArray) Map() ListEntryMap {
+    m := ListEntryMap{}
+    for _, entry := range le {
+        m[entry.Name] = entry.Value
+    }
+    return m
+
+}
 
 type Enumerate struct {
     ptr *C.struct_udev_enumerate
+}
+
+func (e *Enumerate) Free() {
+    C.udev_enumerate_unref(e.ptr)
 }
 
 func (e *Enumerate) AddMatchSubsystem(subsystemType string) {
@@ -48,15 +60,8 @@ func (e *Enumerate) AddMatchAttribute(name string, value string) {
     C.udev_enumerate_add_match_sysattr(e.ptr, cName, cValue)
 }
 
-func (e *Enumerate) GetList() []ListEntry {
+func (e *Enumerate) GetList() ListEntryArray {
     C.udev_enumerate_scan_devices(e.ptr)
-
-    list_entry := C.udev_enumerate_get_list_entry(e.ptr)
-
-    if list_entry == nil {
-        return []ListEntry{}
-    }
-
-    return iterateListEntry(list_entry)
+    return NewListEntryArray(C.udev_enumerate_get_list_entry(e.ptr))
 }
 

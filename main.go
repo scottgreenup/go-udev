@@ -19,14 +19,16 @@ func printKeyboards(manager *Manager) {
         dev := manager.GetDeviceFromSystemPath(entry.Name)
         dev.Print()
         fmt.Println(strings.Repeat("-", 80))
-
-        //C.udev_device_unref(dev)
+        dev.Free()
     }
+    enumerate.Free()
 }
 
 
 func main() {
-    manager := NewManager()
+	manager := NewManager()
+	defer manager.Free()
+
     //printKeyboards(manager)
 
     enumerate := manager.NewEnumerate()
@@ -36,4 +38,6 @@ func main() {
         dev.Print()
         fmt.Println(strings.Repeat("-", 80))
     }
+
+    enumerate.Free()
 }

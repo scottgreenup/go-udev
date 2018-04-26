@@ -26,19 +26,18 @@ func printKeyboards(manager *Manager) {
 
 
 func main() {
-    manager := NewManager()
-    defer manager.Free()
+	manager := NewManager()
+	defer manager.Free()
+
     //printKeyboards(manager)
 
-    /*
     enumerate := manager.NewEnumerate()
     enumerate.AddMatchSubsystem("drm")
     for _, entry := range enumerate.GetList() {
         dev := manager.GetDeviceFromSystemPath(entry.Name)
         dev.Print()
         fmt.Println(strings.Repeat("-", 80))
-        dev.Free()
     }
+
     enumerate.Free()
-    */
 }

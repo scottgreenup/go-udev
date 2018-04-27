@@ -1,4 +1,4 @@
-package main
+package udev
 
 // #include <libudev.h>
 // #include <stdlib.h>

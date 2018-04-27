@@ -1,5 +1,6 @@
 package udev
 
+// #cgo LDFLAGS: -ludev
 // #include <libudev.h>
 // #include <stdlib.h>
 import "C"

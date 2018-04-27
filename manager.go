@@ -45,3 +45,15 @@ func (m *Manager) GetDeviceFromSystemPath(path string) *Device {
 
     return NewDevice(C.udev_device_new_from_syspath(m.ptr, cPath))
 }
+
+func (m *Manager) GetMonitorFromNetlink(name string) *Monitor {
+    cName := C.CString(name)
+    defer C.free(unsafe.Pointer(cName))
+	mon := C.udev_monitor_new_from_netlink(m.ptr, cName)
+
+	if mon == nil {
+		return nil
+	}
+
+	return NewMonitor(mon)
+}

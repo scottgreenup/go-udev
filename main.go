@@ -12,6 +12,7 @@ import "C"
 
 func printKeyboards(manager *Manager) {
     enumerate := manager.NewEnumerate()
+    defer enumerate.Free()
     enumerate.AddMatchSubsystem("usb")
     enumerate.AddMatchAttribute("interface", "Keyboard")
 
@@ -21,7 +22,6 @@ func printKeyboards(manager *Manager) {
         fmt.Println(strings.Repeat("-", 80))
         dev.Free()
     }
-    enumerate.Free()
 }
 
 
@@ -32,6 +32,7 @@ func main() {
     //printKeyboards(manager)
 
     enumerate := manager.NewEnumerate()
+    defer enumerate.Free()
     enumerate.AddMatchSubsystem("drm")
     for _, entry := range enumerate.GetList() {
         dev := manager.GetDeviceFromSystemPath(entry.Name)
@@ -39,5 +40,4 @@ func main() {
         fmt.Println(strings.Repeat("-", 80))
     }
 
-    enumerate.Free()
 }

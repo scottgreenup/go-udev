@@ -48,10 +48,21 @@ func (m *Monitor) ReceiveDevice() *Device {
 }
 
 func (m *Monitor) AddFilterToMatchSubsystemDevType(subsystem string, devType string) bool {
-	cSubsystem := C.CString(subsystem)
-	defer C.free(unsafe.Pointer(cSubsystem))
-	cDevType := C.CString(devType)
-	defer C.free(unsafe.Pointer(cDevType))
+	var cSubsystem *C.char
+	if subsystem != "" {
+		cSubsystem := C.CString(subsystem)
+		defer C.free(unsafe.Pointer(cSubsystem))
+	} else {
+		cSubsystem = nil
+	}
+
+	var cDevType *C.char
+	if devType != "" {
+		cDevType = C.CString(devType)
+		defer C.free(unsafe.Pointer(cDevType))
+	} else {
+		cDevType = nil
+	}
 	return C.udev_monitor_filter_add_match_subsystem_devtype(m.ptr, cSubsystem, cDevType) >= 0
 }
 
